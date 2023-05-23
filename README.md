@@ -18,4 +18,4 @@ Queste sono le funzionalità supportate:
 
 ## Credits
 
-Non avrei mai potuto realizzare questo calcolatore senza la disponibilità del [foglio di Maino](https://digilander.libero.it/ventimaggio/Finanza/Pagina%20dei%20files.html) e dei fogli da esso derivati [come quello dell'utente del Forum di Finanza Online @fuma57](https://forum.finanzaonline.com/threads/foglio-di-calcolo-per-rendimenti-obbligazioni-a-tasso-fisso-compresi-btp-bot-e-corporate.2026003/) e delle persone che lo hanno aiutato come @giorgio1966 ed il suo team. 
+Non avrei mai potuto realizzare questo calcolatore senza la disponibilità del [foglio di Maino](https://digilander.libero.it/ventimaggio/Finanza/Pagina%20dei%20files.html) e dei fogli da esso derivati [come quello dell'utente del Forum di Finanza Online @fuma57](https://forum.finanzaonline.com/threads/foglio-di-calcolo-per-rendimenti-obbligazioni-a-tasso-fisso-compresi-btp-bot-e-corporate.2026003/) e delle persone che lo hanno aiutato come @giorgio1966 ed il suo team. Ringrazio tutti gli utenti del [Forum di Finanza Online](https://forum.finanzaonline.com/) per l'aiuto a comprendere concetti non sempre facili da digerire.
