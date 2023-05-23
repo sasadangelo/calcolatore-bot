@@ -1,6 +1,6 @@
 # Calcolatore Buoni Ordinari del Tesoro (BOT)
 
-Questo progetto contiene un Calcolatore per i Buoni Ordinari del Tesoro (BOT). Il Calcolatore non è altro che un foglio elettronico sviluppato con Libre Office. L'obiettivo di questo calcolatore è quello di consentire a chi lo utilizza di sapere in anticipo la spesa da sostenere per acquistare un BOT in Asta o su Mercato Ordinario Telematico (MOT). Inoltre, il Calcolatore consente di calcolare i guadagni e rendimenti lordi e netti.
+Questo progetto contiene un Calcolatore per i Buoni Ordinari del Tesoro (BOT). Il Calcolatore non è altro che un foglio elettronico sviluppato con Libre Office il cui obiettivo è quello di consentire a chi lo utilizza di sapere in anticipo la spesa da sostenere, i guadagni e i rendimenti di BOT acquistati in Asta o su Mercato Ordinario Telematico (MOT).
 
 ## Prerequisiti
 
@@ -15,6 +15,10 @@ Queste sono le funzionalità supportate:
 * Calcolo automatico dell'anagrafica del BOT con dati quali: ISIN, Prezzo di Emissione, Data di Emissione e Data di Scadenza.
 * Possibilità di inserire: Lotto, Commissioni (con min e max), Costi Fissi e Minusvalenze.
 * Calcolo automatico di: Importo Secco, Costi di Commissione, Costi fissi, Imposte, Prezzo Pagato, Plusvalenze, Minusvalenze, Importo Rimborsato, Guadagni e Rendimenti.
+
+## Guida
+
+Il file Calcolatore-BOT.ods contiene, al suo interno, una Guida su come utilizzare il calcolatore stesso.
 
 ## Credits
 
