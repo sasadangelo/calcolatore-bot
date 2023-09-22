@@ -5,3 +5,4 @@ class BOT:
         self.data_emissione = data_emissione
         self.prezzo_emissione = float(prezzo_emissione.replace(',', '.'))
         self.scadenza = scadenza
+        self.last_quote = None
