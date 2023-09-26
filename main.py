@@ -1,7 +1,7 @@
 from bot_catalog import BOTCatalog
 
 if __name__ == "__main__":
-    catalog = BOTCatalog('data/emissioni.csv')
+    catalog = BOTCatalog()
     bot_list = catalog.get_bot_list()
 
     for bot in bot_list:
