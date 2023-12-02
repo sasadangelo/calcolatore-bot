@@ -1,3 +1,11 @@
+# BOTCalculator - BOT Calculator main class
+#
+# This module defines the BOTCalculator class, which is main class for managing the BOT Calculator.
+#
+# Copyright (C) 2023 Salvatore D'Angelo
+# Maintainer: Salvatore D'Angelo sasadangelo@gmail.com
+#
+# SPDX-License-Identifier: MIT
 from bot_catalog import BOTCatalog
 from bot import BOT
 from datetime import date
@@ -7,7 +15,24 @@ from tax_fee_policy import TaxFeePolicy
 from portfolio import Portfolio
 from sales import SalesAmounts
 
-
+# This class represents the BOT Calculator. It has a calculate method where it gets the following input:
+# - BOT
+# - Purchase Data
+# - Bank Fee Policy
+# - Portfolio
+#
+# It calculates the:
+# - Purchase Costs
+#   - Clean Price
+#   - Commission
+#   - Tax
+#   - Total Cost
+# - Sales Amounts
+#   - Purchase Price Capital Gain
+#   - Taxable Amount
+#   - Refunded Amount
+#   - Capital Gain Tax
+#   - Remaining Gain Loss
 class BOTCalculator:
     def calculate(self, bot, purchase_data, bank_fee_policy, portfolio):
         quantity = purchase_data.lot/100
@@ -37,10 +62,11 @@ class BOTCalculator:
 if __name__ == "__main__":
     catalog = BOTCatalog()
     bot = catalog.get_bot("Bot Zc Fb24 A Eur")
-    fee_policy_manager = BankFeePolicyManager()
+    fee_policy = fee_policy_manager = BankFeePolicyManager().get_bank_fee_policy("Intesa San Paolo", "MOT")
     purchase_data = PurchaseData(date(2023, 3, 1), 96.846, 5000, False)
+    portfolio = Portfolio()
     bot_calculator = BOTCalculator()
-    purchase_costs, sale_amounts = bot_calculator.calculate(bot, purchase_data, fee_policy_manager.get_bank_fee_policy("Intesa San Paolo", "MOT"), Portfolio())
+    purchase_costs, sale_amounts = bot_calculator.calculate(bot, purchase_data, fee_policy, portfolio)
     print("Importo Secco: ", purchase_costs.clean_price)
     print("Commissioni: ", round(purchase_costs.commission,2))
     print("Tasse: ", round(purchase_costs.tax,2))
