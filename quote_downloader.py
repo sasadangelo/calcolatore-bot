@@ -25,7 +25,6 @@ class QuoteDownloader:
                 for row in rows:
                     columns = row.find_all('td')
                     if len(columns) >= 2:
-                        #print(columns)
                         bot_name = columns[0].text.strip()
                         # Controlla se il BOT esiste nel catalogo, se si allora bisogna prelevare la quotazione.
                         bot = self.bot_catalog.get_bot(bot_name)
