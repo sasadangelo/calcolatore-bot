@@ -16,10 +16,10 @@ from portfolio import Portfolio
 from sales import SalesAmounts
 
 # This class represents the BOT Calculator. It has a calculate method where it gets the following input:
-# - BOT
+# - BOT Name
 # - Purchase Data
 # - Bank Fee Policy
-# - Portfolio
+# - Portfolio Minus
 #
 # It calculates the:
 # - Purchase Costs
@@ -35,9 +35,13 @@ from sales import SalesAmounts
 #   - Remaining Gain Loss
 class BOTCalculator:
     def calculate(self, bot, purchase_data, bank_fee_policy, portfolio):
+        # The number of BOT bought is LOT/100
         quantity = purchase_data.lot/100
+        # The BOT duration is the amount of time in days between the issuance and maturity date.
+        # The BOT passed durantion is the amount of time between the regulament day (=buy day + 2 business days) and the maturity date
         duration = bot.maturity_date - bot.issuance_date
         passed_duration = purchase_data.purchase_date - bot.issuance_date
+        # the teoric price is the price the BOT has in a specific day in the ipothesis of a linear growth from the regulament day and the maturity date
         theoric_price = bot.issuance_price + (100 - bot.issuance_price)*(passed_duration/duration)
         clean_price = purchase_data.purchase_price * quantity
         commission = bank_fee_policy.calculate(clean_price)
