@@ -3,10 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from bot import BOT
+from quote import Quote
 
 class BOTCatalog:
     def __init__(self):
         self.bot_dict = {}
+        self.quote_dict = {}
+        #self.__load_quote_from_csv("data/quotazioni.csv")
         self.__load_data_from_csv("data/emissioni.csv")
 
     def __load_data_from_csv(self, csv_file):
@@ -19,7 +22,22 @@ class BOTCatalog:
                 issuance_price = row['PREZZO EMISSIONE']
                 maturity_date = datetime.strptime(row['SCADENZA'], '%d/%m/%Y').date()
                 bot = BOT(name, isin, issuance_date, issuance_price, maturity_date)
+                #bot.last_quote = self.quote_dict[name]
                 self.bot_dict[name] = bot
+
+    def __load_quote_from_csv(self, csv_file):
+        with open(csv_file, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                name = row['Nome BOT']
+                ora = datetime.strptime(row['Ora'], '%d/%m/%Y').date()
+                ultimo_prezzo = row['Ultimo Prezzo']
+                variazione = row["Variazione"]
+                apertura = row["Apertura"]
+                min_value = row["Min"]
+                max_value = row["Max"]
+                quote = Quote(ora, ultimo_prezzo, variazione, apertura, min_value, max_value)
+                self.quote_dict[name] = quote
 
     def update(self):
         url = "https://www.teleborsa.it/Quotazioni/BOT"
@@ -92,36 +110,5 @@ class BOTCatalog:
 # Esempio di utilizzo della classe BOTCatalog
 if __name__ == "__main__":
     catalog = BOTCatalog()
-    
-    # Ottenere un singolo BOT per nome
-    #bot_name = "Bot Zc St23 S Eur"
-    #bot = catalog.get_bot(bot_name)
-    #if bot:
-    #    print(f"Nome BOT: {bot.nome}")
-    #    print(f"ISIN: {bot.isin}")
-    #    print(f"Data Emissione: {bot.data_emissione}")
-    #    print(f"Prezzo Emissione: {bot.prezzo_emissione}")
-    #    print(f"Scadenza: {bot.scadenza}")
-    #else:
-    #   print(f"BOT con nome '{bot_name}' non trovato.")
-    
-    # Ottenere la lista di tutti i BOT 
-    #bot_list = catalog.get_bot_list()
-    #for bot in bot_list:
-    #    print(f"Nome BOT: {bot.name}")
-    #    print(f"ISIN: {bot.isin}")
-    #    print(f"Data Emissione: {bot.issuance_date}")
-    #    print(f"Prezzo Emissione: {bot.issuance_price}")
-    #    print(f"Scadenza: {bot.maturity_date}")
-         # Calcolare la durata in giorni
-    #    duration = (bot.maturity_date - bot.issuance_date).days
-         # Calcolare il guadagno e il rendimento all'emissione
-    #    gain = 100 - bot.issuance_price
-    #    yield_percent = (gain * 100) / bot.issuance_price * (365 / duration) if duration != 0 else 0
-         # Stampa la Durata e il Rendimento all'emissione
-    #    print(f"Durata: {duration} giorni")
-    #    print(f"Rendimento Emissione: {yield_percent:.2f}%")
-    #    print("-" * 30)  # Aggiungiamo una linea separatrice tra i risultati di diversi BOT
-
     catalog.update()
     catalog.save()
