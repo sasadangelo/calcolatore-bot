@@ -67,7 +67,8 @@ class QuoteDownloader:
             # Scrivi i dati delle quotazioni aggiornate nel file CSV
             for bot in self.bot_catalog.get_bot_list():
                 if bot.last_quote:
-                    ultimo_prezzo = bot.last_quote.ultimo_prezzo.replace(',', '.').replace('"', '')
+                    #ultimo_prezzo = bot.last_quote.ultimo_prezzo.replace(',', '.').replace('"', '')
+                    ultimo_prezzo = "{:.3f}".format(bot.last_quote.ultimo_prezzo)
                     variazione = bot.last_quote.variazione.replace(',', '.').replace('"', '')
                     apertura = bot.last_quote.apertura.replace(',', '.').replace('"', '')
                     min_value = bot.last_quote.min.replace(',', '.').replace('"', '') if bot.last_quote.min else ''

@@ -1,66 +1,52 @@
 import streamlit as st
-import pandas as pd
-from bot import BOTType
-from bot_catalog import BOTCatalog
-from tabulate import tabulate
-from datetime import datetime
+from streamlit_option_menu import option_menu
+from src.ui.bot_catalog_page import BOTCatalogPage
 
-def calculate_yield(bot, price_type):
-    if price_type == "Emissione":
-        price = bot.issuance_price
-        date = bot.issuance_date
-    else:
-        # Se l'utente ha scelto "Ultimo" come Tipo Prezzo.
-        price = bot.last_quote.ultimo_prezzo if bot.last_quote else 0
-        date = bot.last_quote.ora.date() if bot.last_quote else datetime.now().date()
+#def update_catalog():
+#    catalog = BOTCatalog()
+#    catalog.update()
+#    catalog.save()
+#    print("Catalogo BOT aggiornato con successo!")
 
-    duration = (bot.maturity_date - date).days
-    gain = 100 - price
-    yield_percent = (gain * 100) / price * (365 / duration) if duration != 0 else 0
-    return yield_percent, date, price
+def Singleton(cls):
+    instances = {}
+    
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    
+    return get_instance
 
-def filter_bots_by_type(bot_list, selected_type):
-    if selected_type == "Tutti":
-        return bot_list
-    else:
-        selected_enum = BOTType.ANNUALE if selected_type == "Annuale" else BOTType.SEMESTRALE
-        return [bot for bot in bot_list if bot.type == selected_enum]
+@Singleton
+class BOTApp:
+    # The constructor load all the activities in the gpx folder of the logged in user.
+    def __init__(self):
+        self.current_page = None
 
-def main():
-    st.title("Elenco dei BOT")
+    # Runs the TrainingApp and initializes the first page as ActivityOverviewPage.
+    def run(self):
+        self.__create_sidebar_menu()
 
-    # Carica il catalogo dei BOT
-    catalog = BOTCatalog()
+    # Selects and renders the current page based on user navigation logic.
+    def select_page(self, page):
+        # Here you can add logic for navigating between different pages.
+        # For example, if you want to show the ActivityOverviewPage as the initial page:
+        self.current_page = page
+        self.current_page.render()
 
-    # Ottieni la lista dei BOT escludendo quelli già scaduti
-    current_date = datetime.now().date()
-    bot_list = [bot for bot in catalog.get_bot_list() if bot.maturity_date >= current_date]
+    # Create the sidebar menu with two options:
+    # - Activities, it shows all the athlete's activities
+    # - Profile, it shows the athlete's profile
+    def __create_sidebar_menu(self):
+        with st.sidebar:
+            menu_choice = option_menu("Menu", ["Catalogo BOT"], 
+                icons=['list'], menu_icon="cast", default_index=0)
 
-    # Aggiungi il ComboBox per selezionare il tipo di BOT
-    selected_type = st.selectbox("Tipo BOT:", ["Tutti", "Annuale", "Semestrale"], index=0)
-
-    # Filtra i BOT in base al tipo selezionato
-    filtered_bot_list = filter_bots_by_type(bot_list, selected_type)
-
-    # Creare una lista di tuple con i dati dei BOT
-    table_data = []
-
-    # Aggiungi i radio button per selezionare il "Tipo Prezzo"
-    price_type = st.radio("Data - Prezzo - Rendimento", ["Ultimo", "Emissione"], index=0)  # Default a "Ultimo"
-
-    # Aggiungere la colonna del Rendimento Emissione
-    for bot in filtered_bot_list:
-        yield_percent, date, price = calculate_yield(bot, price_type)
-        table_data.append((bot.name, bot.isin, date.strftime('%d/%m/%Y'),
-                           "{:.3f}".format(price), bot.maturity_date.strftime('%d/%m/%Y'),
-                           "{:.2f}%".format(yield_percent)))
-
-    # Definisci le intestazioni corrette
-    headers = ["Nome BOT", "ISIN", "Data", "Prezzo", "Scadenza", "Rendimento Lordo"]
-    df = pd.DataFrame(table_data, columns=headers)
-
-    # Mostra la tabella utilizzando Streamlit
-    st.table(df)
+        # Select the page to show depending on the menu option the user selected
+        if menu_choice == "Catalogo BOT":
+            self.select_page(BOTCatalogPage())
 
 if __name__ == "__main__":
-    main()
+    app = BOTApp()
+    app.run()

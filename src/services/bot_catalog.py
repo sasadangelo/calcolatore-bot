@@ -2,8 +2,8 @@ import csv
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from bot import BOT
-from quote import Quote
+from src.model.bot import BOT
+from src.model.quote import Quote
 
 class BOTCatalog:
     def __init__(self):
