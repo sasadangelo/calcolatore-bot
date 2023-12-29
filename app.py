@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from bot import BOTType
 from bot_catalog import BOTCatalog
 from tabulate import tabulate
 from datetime import datetime
@@ -16,8 +17,14 @@ def calculate_yield(bot, price_type):
     duration = (bot.maturity_date - date).days
     gain = 100 - price
     yield_percent = (gain * 100) / price * (365 / duration) if duration != 0 else 0
-    #return "{:.2f}%".format(yield_percent), date, "{:.3f}".format(price)
     return yield_percent, date, price
+
+def filter_bots_by_type(bot_list, selected_type):
+    if selected_type == "Tutti":
+        return bot_list
+    else:
+        selected_enum = BOTType.ANNUALE if selected_type == "Annuale" else BOTType.SEMESTRALE
+        return [bot for bot in bot_list if bot.type == selected_enum]
 
 def main():
     st.title("Elenco dei BOT")
@@ -29,6 +36,12 @@ def main():
     current_date = datetime.now().date()
     bot_list = [bot for bot in catalog.get_bot_list() if bot.maturity_date >= current_date]
 
+    # Aggiungi il ComboBox per selezionare il tipo di BOT
+    selected_type = st.selectbox("Tipo BOT:", ["Tutti", "Annuale", "Semestrale"], index=0)
+
+    # Filtra i BOT in base al tipo selezionato
+    filtered_bot_list = filter_bots_by_type(bot_list, selected_type)
+
     # Creare una lista di tuple con i dati dei BOT
     table_data = []
 
@@ -36,7 +49,7 @@ def main():
     price_type = st.radio("Data - Prezzo - Rendimento", ["Ultimo", "Emissione"], index=0)  # Default a "Ultimo"
 
     # Aggiungere la colonna del Rendimento Emissione
-    for bot in bot_list:
+    for bot in filtered_bot_list:
         yield_percent, date, price = calculate_yield(bot, price_type)
         table_data.append((bot.name, bot.isin, date.strftime('%d/%m/%Y'),
                            "{:.3f}".format(price), bot.maturity_date.strftime('%d/%m/%Y'),
