@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+from datetime import datetime
 from bot import BOT
 from bot_catalog import BOTCatalog
 from quote import Quote
@@ -8,6 +9,18 @@ from quote import Quote
 class QuoteDownloader:
     def __init__(self, bot_catalog):
         self.bot_catalog = bot_catalog
+
+    def __parse_ora(self, ora_raw):
+        current_year = datetime.now().year
+        current_date = datetime.now().date()
+        try:
+            # Prova a convertire l'orario nel formato HH.mm
+            parsed_time = datetime.strptime(ora_raw, "%H.%M")
+            return datetime(current_year, current_date.month, current_date.day, parsed_time.hour, parsed_time.minute, 0).strftime("%d/%m/%Y %H:%M:%S")
+        except ValueError:
+            # Se non riesce, assume che l'orario sia una data nel formato DD/MM
+            day, month = map(int, ora_raw.split('/'))
+            return datetime(current_year, month, day).strftime("%d/%m/%Y 00:00:00")
 
     def download_quotes(self):
         url = "https://www.teleborsa.it/Quotazioni/BOT"
@@ -29,7 +42,8 @@ class QuoteDownloader:
                         # Controlla se il BOT esiste nel catalogo, se si allora bisogna prelevare la quotazione.
                         bot = self.bot_catalog.get_bot(bot_name)
                         if bot:
-                            ora = columns[1].text.strip()
+                            ora_raw = columns[1].text.strip()
+                            ora = self.__parse_ora(ora_raw)
                             ultimo_prezzo = columns[2].text.strip()
                             variazione = columns[3].text.strip()
                             apertura = columns[4].text.strip()

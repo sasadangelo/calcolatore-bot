@@ -9,7 +9,7 @@ class BOTCatalog:
     def __init__(self):
         self.bot_dict = {}
         self.quote_dict = {}
-        #self.__load_quote_from_csv("data/quotazioni.csv")
+        self.__load_quote_from_csv("data/quotazioni.csv")
         self.__load_data_from_csv("data/emissioni.csv")
 
     def __load_data_from_csv(self, csv_file):
@@ -22,7 +22,7 @@ class BOTCatalog:
                 issuance_price = row['PREZZO EMISSIONE']
                 maturity_date = datetime.strptime(row['SCADENZA'], '%d/%m/%Y').date()
                 bot = BOT(name, isin, issuance_date, issuance_price, maturity_date)
-                #bot.last_quote = self.quote_dict[name]
+                bot.last_quote = self.quote_dict.get(name) 
                 self.bot_dict[name] = bot
 
     def __load_quote_from_csv(self, csv_file):
@@ -30,7 +30,7 @@ class BOTCatalog:
             reader = csv.DictReader(file)
             for row in reader:
                 name = row['Nome BOT']
-                ora = datetime.strptime(row['Ora'], '%d/%m/%Y').date()
+                ora = datetime.strptime(row['Ora'], '%d/%m/%Y %H:%M:%S')
                 ultimo_prezzo = row['Ultimo Prezzo']
                 variazione = row["Variazione"]
                 apertura = row["Apertura"]
