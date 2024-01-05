@@ -1,9 +1,9 @@
-from bot_catalog import BOTCatalog
+from src.services.bot_catalog_service import BOTCatalogService
 from tabulate import tabulate
 
 # Esempio di utilizzo della classe BOTCatalog
 if __name__ == "__main__":
-    catalog = BOTCatalog()
+    catalog = BOTCatalogService()
 
     # Ottenere la lista di tutti i BOT
     bot_list = catalog.get_bot_list()

@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 from datetime import datetime
-from bot import BOT
-from bot_catalog import BOTCatalog
-from quote import Quote
+from src.model.bot import BOT
+from src.services.bot_catalog_service import BOTCatalogService
+from src.model.quote import Quote
 
 class QuoteDownloader:
     def __init__(self, bot_catalog):
@@ -77,7 +77,7 @@ class QuoteDownloader:
 
 if __name__ == "__main__":
     # Carica la lista di BOT dal file CSV
-    catalog = BOTCatalog()
+    catalog = BOTCatalogService()
 
     # Crea un oggetto QuoteDownloader
     quote_downloader = QuoteDownloader(catalog)

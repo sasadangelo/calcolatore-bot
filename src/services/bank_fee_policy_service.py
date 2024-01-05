@@ -1,18 +1,7 @@
-import csv
-from commission import CommissionPercentageCapPlusFixed
+from src.model.bank_fee_policy import BankFeePolicy
+from src.model.commission import CommissionPercentageCapPlusFixed
 
-class BankFeePolicy:
-    def __init__(self, bank_name):
-        self.bank_name = bank_name
-        self.fee_policies = {}
-
-    def add_market_policy(self, market, commission):
-        self.fee_policies[market] = commission
-
-    def get_market_policy(self, market):
-        return self.fee_policies[market]
-
-class BankFeePolicyManager:
+class BankFeePolicyService:
     def __init__(self):
         self.bank_policies = {}
         self.__load_commissions("data/bank_fee_policy.csv")
@@ -49,9 +38,8 @@ class BankFeePolicyManager:
                 # Aggiungi la CommissionPolicy al BankCommissionPolicy
                 self.bank_policies[bank_name].add_market_policy(market, commission)
 
-
 if __name__ == "__main__":
-    fee_policy_manager = BankFeePolicyManager()
+    fee_policy_manager = BankFeePolicyService()
 
     # Recupera una politica di commissione specifica
     bank_name = "Intesa San Paolo"

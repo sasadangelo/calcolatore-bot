@@ -5,7 +5,7 @@ from datetime import datetime
 from src.model.bot import BOT
 from src.model.quote import Quote
 
-class BOTCatalog:
+class BOTCatalogService:
     def __init__(self):
         self.bot_dict = {}
         self.quote_dict = {}
@@ -104,11 +104,16 @@ class BOTCatalog:
     def get_bot_list(self):
         return list(self.bot_dict.values())
 
+    def get_active_bot_list(self):
+        current_date = datetime.now().date()
+        active_bots = [bot for bot in self.bot_dict.values() if bot.maturity_date >= current_date]
+        return active_bots
+        
     def get_bot(self, name):
         return self.bot_dict.get(name)
 
 # Esempio di utilizzo della classe BOTCatalog
 if __name__ == "__main__":
-    catalog = BOTCatalog()
+    catalog = BOTCatalogService()
     catalog.update()
     catalog.save()

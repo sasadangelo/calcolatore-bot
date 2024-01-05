@@ -30,6 +30,4 @@ class CommissionPercentageCapPlusFixed(CommissionPercentageCap):
         self.fixed = fixed
 
     def calculate(self, price):
-        calculated_percentage = super().calculate(price)
-        calculated_with_fixed = calculated_percentage + self.fixed
-        return calculated_with_fixed
+        return super().calculate(price) + self.fixed

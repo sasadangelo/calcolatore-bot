@@ -1,17 +1,17 @@
 import unittest
 from datetime import date
-from bot_catalog import BOTCatalog
-from bot import BOT
-from purchase import PurchaseData
-from bank_fee_policy import BankFeePolicyManager
-from portfolio import Portfolio
-from bot_calculator import BOTCalculator
+from src.services.bot_catalog_service import BOTCatalogService
+from src.model.bot import BOT
+from src.model.purchase import PurchaseData
+from src.model.bank_fee_policy import BankFeePolicyManager
+from src.model.portfolio import Portfolio
+from src.services.bot_calculator_service import BOTCalculatorService
 
 class TestBOTCalculator(unittest.TestCase):
     def setUp(self):
-        self.catalog = BOTCatalog()
+        self.catalog = BOTCatalogService()
         self.fee_policy_manager = BankFeePolicyManager()
-        self.calculator = BOTCalculator()
+        self.calculator = BOTCalculatorService()
 
     def test_calculate_fb24_bot(self):
         bot = self.catalog.get_bot("Bot Zc Fb24 A Eur")

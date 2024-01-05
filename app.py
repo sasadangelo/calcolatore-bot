@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 from src.ui.bot_catalog_page import BOTCatalogPage
+from src.ui.bot_calculator_page import BOTCalculatorPage
 
 #def update_catalog():
 #    catalog = BOTCatalog()
@@ -40,10 +41,12 @@ class BOTApp:
     # - Profile, it shows the athlete's profile
     def __create_sidebar_menu(self):
         with st.sidebar:
-            menu_choice = option_menu("Menu", ["Catalogo BOT"], 
-                icons=['list'], menu_icon="cast", default_index=0)
+            menu_choice = option_menu("Menu", ["Calcolatore BOT", "Catalogo BOT"], 
+                icons=['calculator', 'list'], menu_icon="cast", default_index=0)
 
         # Select the page to show depending on the menu option the user selected
+        if menu_choice == "Calcolatore BOT":
+            self.select_page(BOTCalculatorPage())
         if menu_choice == "Catalogo BOT":
             self.select_page(BOTCatalogPage())
 

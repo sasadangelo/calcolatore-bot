@@ -11,7 +11,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from src.services.bot_catalog import BOTCatalog
+from src.services.bot_catalog_service import BOTCatalogService
 from src.model.bot import BOTType
 from src.ui.page import Page
 
@@ -42,7 +42,7 @@ class BOTCatalogPage(Page):
         st.title("Catalogo BOT")
 
         # Carica il catalogo dei BOT
-        catalog = BOTCatalog()
+        catalog = BOTCatalogService()
 
         # Imposta il lavoro programmato solo se non ci sono già lavori programmati
         #if not schedule.get_jobs(tag='update_catalog'):
@@ -53,8 +53,9 @@ class BOTCatalogPage(Page):
         #    print("Lavoro programmato per aggiornare il catalogo dei BOT già impostato.")
 
         # Ottieni la lista dei BOT escludendo quelli già scaduti
-        current_date = datetime.now().date()
-        bot_list = [bot for bot in catalog.get_bot_list() if bot.maturity_date >= current_date]
+        #current_date = datetime.now().date()
+        #bot_list = [bot for bot in catalog.get_bot_list() if bot.maturity_date >= current_date]
+        bot_list = catalog.get_active_bot_list()
 
         # Aggiungi il ComboBox per selezionare il tipo di BOT
         selected_type = st.selectbox("Tipo BOT:", ["Tutti", "Annuale", "Semestrale"], index=0)
