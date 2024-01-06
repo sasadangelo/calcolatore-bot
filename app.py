@@ -2,12 +2,9 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from src.ui.bot_catalog_page import BOTCatalogPage
 from src.ui.bot_calculator_page import BOTCalculatorPage
-
-#def update_catalog():
-#    catalog = BOTCatalog()
-#    catalog.update()
-#    catalog.save()
-#    print("Catalogo BOT aggiornato con successo!")
+from src.model.commission import CommissionPercentageCapPlusFixed
+from src.model.purchase import PurchaseData, PurchaseCosts
+from src.model.bot import BOT
 
 def Singleton(cls):
     instances = {}
@@ -29,8 +26,16 @@ class BOTApp:
     def run(self):
         self.__create_sidebar_menu()
 
+    def initialize_session(self):
+        if 'bot' not in st.session_state:
+            st.session_state.bot = BOT()
+        if 'purchase_data' not in st.session_state:
+            st.session_state.purchase_data = PurchaseData()
+        if 'commissions_policy' not in st.session_state:
+            st.session_state.commissions_policy = CommissionPercentageCapPlusFixed()
+
     # Selects and renders the current page based on user navigation logic.
-    def select_page(self, page):
+    def __select_page(self, page):
         # Here you can add logic for navigating between different pages.
         # For example, if you want to show the ActivityOverviewPage as the initial page:
         self.current_page = page
@@ -46,10 +51,11 @@ class BOTApp:
 
         # Select the page to show depending on the menu option the user selected
         if menu_choice == "Calcolatore BOT":
-            self.select_page(BOTCalculatorPage())
+            self.__select_page(BOTCalculatorPage())
         if menu_choice == "Catalogo BOT":
-            self.select_page(BOTCatalogPage())
+            self.__select_page(BOTCatalogPage())
 
 if __name__ == "__main__":
     app = BOTApp()
+    app.initialize_session()
     app.run()

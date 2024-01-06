@@ -7,11 +7,11 @@ class BOTType(Enum):
     TRIMESTRALE =  "TRIMESTRALE"
 
 class BOT:
-    def __init__(self, name, isin, issuance_date, issuance_price, maturity_date):
+    def __init__(self, name="", isin="", issuance_date=datetime.now().date(), issuance_price=0.000, maturity_date=datetime.now().date()):
         self.name = name
         self.isin = isin
         self.issuance_date = issuance_date
-        self.issuance_price = float(issuance_price.replace(',', '.'))
+        self.issuance_price = issuance_price
         self.maturity_date = maturity_date
         self.last_quote = None
 

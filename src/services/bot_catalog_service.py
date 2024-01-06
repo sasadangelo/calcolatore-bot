@@ -19,7 +19,7 @@ class BOTCatalogService:
                 name = row['Nome BOT']
                 isin = row['ISIN']
                 issuance_date = datetime.strptime(row['DATA EMISSIONE'], '%d/%m/%Y').date()
-                issuance_price = row['PREZZO EMISSIONE']
+                issuance_price = float(row['PREZZO EMISSIONE'])
                 maturity_date = datetime.strptime(row['SCADENZA'], '%d/%m/%Y').date()
                 bot = BOT(name, isin, issuance_date, issuance_price, maturity_date)
                 bot.last_quote = self.quote_dict.get(name) 
@@ -30,13 +30,13 @@ class BOTCatalogService:
             reader = csv.DictReader(file)
             for row in reader:
                 name = row['Nome BOT']
-                ora = datetime.strptime(row['Ora'], '%d/%m/%Y %H:%M:%S')
-                ultimo_prezzo = row['Ultimo Prezzo']
-                variazione = row["Variazione"]
-                apertura = row["Apertura"]
-                min_value = row["Min"]
-                max_value = row["Max"]
-                quote = Quote(ora, ultimo_prezzo, variazione, apertura, min_value, max_value)
+                quote_datetime = datetime.strptime(row['Ora'], '%d/%m/%Y %H:%M:%S')
+                last_price = float(row['Ultimo Prezzo'])
+                variation = float(row["Variazione"])
+                opening = float(row["Apertura"])
+                min_value = float(row["Min"]) if row["Min"] != '' else None
+                max_value = float(row["Max"]) if row["Max"] != '' else None
+                quote = Quote(quote_datetime, last_price, variation, opening, min_value, max_value)
                 self.quote_dict[name] = quote
 
     def update(self):
@@ -69,7 +69,7 @@ class BOTCatalogService:
                                     bot_detail_soup = BeautifulSoup(bot_detail_response.text, 'html.parser')
 
                                     # Estrai prezzo di emissione, data di emissione e scadenza dalla pagina dettagliata
-                                    issuance_price_str = bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label37'}).text.strip()
+                                    issuance_price = float(bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label37'}).text.strip())
 
                                     issuance_date_str = bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label36'}).text.strip()
                                     issuance_date = datetime.strptime(issuance_date_str, '%d/%m/%Y').date()
@@ -78,7 +78,7 @@ class BOTCatalogService:
                                     maturity_date = datetime.strptime(maturity_date_str, '%d/%m/%Y').date()
 
                                     # Aggiungi il nuovo BOT al catalogo
-                                    new_bot = BOT(bot_name, isin, issuance_date, issuance_price_str, maturity_date)
+                                    new_bot = BOT(bot_name, isin, issuance_date, issuance_price, maturity_date)
                                     self.bot_dict[bot_name] = new_bot
                                     print(f"Aggiunto il BOT {bot_name} al catalogo.")
                                 else:

@@ -22,8 +22,8 @@ class BOTCatalogPage(Page):
             date = bot.issuance_date
         else:
             # Se l'utente ha scelto "Ultimo" come Tipo Prezzo.
-            price = bot.last_quote.ultimo_prezzo if bot.last_quote else 0
-            date = bot.last_quote.ora.date() if bot.last_quote else datetime.now().date()
+            price = bot.last_quote.last_price if bot.last_quote else 0.000
+            date = bot.last_quote.quote_datetime.date() if bot.last_quote else datetime.now().date()
 
         duration = (bot.maturity_date - date).days
         gain = 100 - price

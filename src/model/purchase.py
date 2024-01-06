@@ -8,7 +8,7 @@ class PurchaseData:
         self.buy_auction=buy_auction
 
 class PurchaseCosts:
-    def __init__(self, clean_price=0, commission=0.0, tax=0, total_cost=0):
+    def __init__(self, clean_price=0.00, commission=0.00, tax=0, total_cost=0.00):
         self.clean_price = clean_price
         self.commission = commission
         self.tax = tax

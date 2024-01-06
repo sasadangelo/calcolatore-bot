@@ -1,11 +1,10 @@
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import streamlit as st
+from datetime import datetime
 from src.services.bot_catalog_service import BOTCatalogService
 from src.services.bot_calculator_service import BOTCalculatorService
-from src.model.commission import CommissionPercentageCapPlusFixed
-from src.model.purchase import PurchaseData
 from src.model.portfolio import Portfolio
+from src.model.bot import BOT
+from src.model.quote import Quote
 from src.ui.page import Page
 from src.ui.helper import Helper
 
@@ -51,32 +50,28 @@ class BOTCalculatorPage(Page):
     def render(self):
         st.title("Calcolatore BOT")
 
-        selected_bot_name = st.selectbox("Seleziona un BOT", self.bot_names, index=0)
-        
-        if selected_bot_name != "BOT non in Catalogo":
-            bot = self.catalog.get_bot(selected_bot_name)
+        bot = st.session_state.bot
+        index = self.bot_names.index(bot.name) if bot.name != "" else 0
+        selected_bot_name = st.selectbox("Seleziona un BOT", self.bot_names, index)
+        if selected_bot_name != st.session_state.bot.name:
+            if selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG:
+                bot = self.catalog.get_bot(selected_bot_name)
+            else:
+                bot = BOT()
+            st.session_state.bot = bot
+        purchase_data = st.session_state.purchase_data
+        commissions_policy = st.session_state.commissions_policy
 
-        isin = bot.isin if bot else ""
-        issuance_date = bot.issuance_date if bot else datetime.now().date()
-        issuance_price = bot.issuance_price if bot else 0.000
-        maturity_date = bot.maturity_date if bot else datetime.now().date()
-        last_price = bot.last_quote.ultimo_prezzo if bot and bot.last_quote else 0.0
-        purchase_date = datetime.now().date()
-        purchase_price = last_price
-        commissions = 0.00
-        min_commissions = 0.00
-        max_commissions = float('inf')
-        fixed_costs = 0.00
-        lot = 0
+        last_price = bot.last_quote.last_price #if bot and bot.last_quote else 0.0
         duration = bot.get_duration() if bot else 0
 
         # Anagrafica Titolo
         with st.container(border=True):
             st.markdown("<h2 style='font-size: 20px;'>Anagrafica Titolo</h2>", unsafe_allow_html=True)
-            isin = st.text_input("ISIN", value=isin, key=BOTCalculatorPage.ISIN_KEY, max_chars=12, disabled=True, help=Helper.get_help(BOTCalculatorPage.ISIN_KEY))
-            issuance_date = st.date_input("Data di Emissione:", value=issuance_date, key=BOTCalculatorPage.ISSUANCE_DATE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), help=Helper.get_help(BOTCalculatorPage.ISSUANCE_DATE_KEY))
-            issuance_price = st.number_input("Prezzo di Emissione:", value=issuance_price, key=BOTCalculatorPage.ISSUANCE_PRICE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.ISSUANCE_PRICE_KEY))
-            maturity_date = st.date_input("Data di Scadenza:", value=maturity_date, key=BOTCalculatorPage.METURITY_DATE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), help=Helper.get_help(BOTCalculatorPage.METURITY_DATE_KEY))
+            st.text_input("ISIN", value=bot.isin, key=BOTCalculatorPage.ISIN_KEY, max_chars=12, disabled=True, help=Helper.get_help(BOTCalculatorPage.ISIN_KEY))
+            bot.issuance_date = st.date_input("Data di Emissione:", value=bot.issuance_date, key=BOTCalculatorPage.ISSUANCE_DATE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), help=Helper.get_help(BOTCalculatorPage.ISSUANCE_DATE_KEY))
+            bot.issuance_price = st.number_input("Prezzo di Emissione:", value=bot.issuance_price, key=BOTCalculatorPage.ISSUANCE_PRICE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.ISSUANCE_PRICE_KEY))
+            bot.maturity_date = st.date_input("Data di Scadenza:", value=bot.maturity_date, key=BOTCalculatorPage.METURITY_DATE_KEY, disabled=(selected_bot_name != BOTCalculatorPage.BOT_NOT_IN_CATALOG), help=Helper.get_help(BOTCalculatorPage.METURITY_DATE_KEY))
             last_price = st.number_input("Quotazione:", value=last_price, key=BOTCalculatorPage.LAST_PRICE_KEY, disabled=True, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.LAST_PRICE_KEY))
 
         # Dati di Acquisto
@@ -84,38 +79,38 @@ class BOTCalculatorPage(Page):
             st.markdown("<h2 style='font-size: 20px;'>Dati di Acquito</h2>", unsafe_allow_html=True)
             market_type = st.radio("Mercato", ["MOT", "Asta"], index=0)
             if market_type == "MOT":
-                purchase_date = st.date_input("Data di Acquisto (Regolamento):", value=purchase_date, key=BOTCalculatorPage.PURCHASE_DATE_KEY, disabled=False, help=Helper.get_help(BOTCalculatorPage.PURCHASE_DATE_KEY))
-                purchase_price = st.number_input("Prezzo di Acquisto:", value=purchase_price, key=BOTCalculatorPage.PURCHASE_PRICE_KEY, disabled=False, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.PURCHASE_PRICE_KEY))
-                commissions = st.number_input("Commissioni (% sul Prezzo di Acquisto):", value=commissions, key=BOTCalculatorPage.COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.COMMISSIONS_KEY))
+                purchase_data.buy_auction = False
+                purchase_data.purchase_date = st.date_input("Data di Acquisto (Regolamento):", value=purchase_data.purchase_date, key=BOTCalculatorPage.PURCHASE_DATE_KEY, disabled=False, help=Helper.get_help(BOTCalculatorPage.PURCHASE_DATE_KEY))
+                purchase_data.purchase_price = st.number_input("Prezzo di Acquisto:", value=purchase_data.purchase_price, key=BOTCalculatorPage.PURCHASE_PRICE_KEY, disabled=False, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.PURCHASE_PRICE_KEY))
+                commissions_policy.percentage = st.number_input("Commissioni (% sul Prezzo di Acquisto):", value=commissions_policy.percentage, key=BOTCalculatorPage.COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.COMMISSIONS_KEY))
             else:
-                purchase_date = issuance_date
-                purchase_price = issuance_price
-                purchase_date = st.date_input("Data di Acquisto (Regolamento):", value=purchase_date, key=BOTCalculatorPage.PURCHASE_DATE_KEY, disabled=True, help=Helper.get_help(BOTCalculatorPage.PURCHASE_DATE_KEY))
-                purchase_price = st.number_input("Prezzo di Acquisto (EUR):", value=purchase_price, key=BOTCalculatorPage.PURCHASE_PRICE_KEY, disabled=True, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.PURCHASE_PRICE_KEY))
-                commissions = st.number_input("Commissioni (% sul Prezzo Nominale):", value=commissions, key=BOTCalculatorPage.COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.COMMISSIONS_KEY))
+                purchase_data.buy_auction = True
+                purchase_data.purchase_date = bot.issuance_date
+                purchase_data.purchase_price = bot.issuance_price
+                purchase_data.purchase_date = st.date_input("Data di Acquisto (Regolamento):", value=purchase_data.purchase_date, key=BOTCalculatorPage.PURCHASE_DATE_KEY, disabled=True, help=Helper.get_help(BOTCalculatorPage.PURCHASE_DATE_KEY))
+                purchase_data.purchase_price = st.number_input("Prezzo di Acquisto (EUR):", value=purchase_data.purchase_price, key=BOTCalculatorPage.PURCHASE_PRICE_KEY, disabled=True, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.PURCHASE_PRICE_KEY))
+                commissions_policy.percentage = st.number_input("Commissioni (% sul Prezzo Nominale):", value=commissions_policy.percentage, key=BOTCalculatorPage.COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.COMMISSIONS_KEY))
 
-            min_commissions = st.number_input("Min. Commissioni (EUR):", value=min_commissions, key=BOTCalculatorPage.MIN_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.MIN_COMMISSIONS_KEY))
-            if max_commissions == float('inf'):
+            commissions_policy.min_value = st.number_input("Min. Commissioni (EUR):", value=commissions_policy.min_value, key=BOTCalculatorPage.MIN_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.MIN_COMMISSIONS_KEY))
+            if commissions_policy.max_value == float('inf'):
                 temp_max_commissions = st.number_input("Max. Commissioni (EUR)", value=None, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
                 if temp_max_commissions != None:
-                    max_commissions = temp_max_commissions
+                    commissions_policy.max_value = temp_max_commissions
             else:
-                max_commissions = st.number_input("Max. Commissioni (EUR)", value=max_commissions, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
-            fixed_costs = st.number_input("Costi Fissi (EUR)", value=fixed_costs, key=BOTCalculatorPage.FIXED_COSTS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.FIXED_COSTS_KEY))
-            lot = st.number_input("Lotto (Importo Nominale in EUR)", value=lot, key=BOTCalculatorPage.LOT_KEY, min_value=0, disabled=False, format="%d", step=1000, help=Helper.get_help(BOTCalculatorPage.LOT_KEY))
-        purchase_data = PurchaseData(purchase_date, purchase_price, lot, market_type == "Asta")
+                commissions_policy.max_value = st.number_input("Max. Commissioni (EUR)", value=commissions_policy.max_value, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
+            commissions_policy.fixed = st.number_input("Costi Fissi (EUR)", value=commissions_policy.fixed, key=BOTCalculatorPage.FIXED_COSTS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.FIXED_COSTS_KEY))
+            purchase_data.lot = st.number_input("Lotto (Importo Nominale in EUR)", value=purchase_data.lot, key=BOTCalculatorPage.LOT_KEY, min_value=0, disabled=False, format="%d", step=1000, help=Helper.get_help(BOTCalculatorPage.LOT_KEY))
         bot_calculator = BOTCalculatorService()
         portfolio = Portfolio()
-        fee_policy = CommissionPercentageCapPlusFixed(commissions, min_commissions, max_commissions, fixed_costs)
-        purchase_costs, sale_amounts = bot_calculator.calculate(bot, purchase_data, fee_policy, portfolio)
+        purchase_costs, sale_amounts = bot_calculator.calculate(bot, purchase_data, commissions_policy, portfolio)
 
         # Informazioni BOT
         with st.container(border=True):
             st.markdown("<h2 style='font-size: 20px;'>Informazioni BOT</h2>", unsafe_allow_html=True)
-            quantity = lot//100
-            remaining_duration = bot.get_remaining_duration(purchase_date) if bot else 0
-            passed_duration = bot.get_passed_duration(purchase_date) if bot else 0
-            theoric_price = bot.get_theoric_price(purchase_date) if bot else 0.00
+            quantity = purchase_data.lot//100
+            remaining_duration = bot.get_remaining_duration(purchase_data.purchase_date) if bot else 0
+            passed_duration = bot.get_passed_duration(purchase_data.purchase_date) if bot else 0
+            theoric_price = bot.get_theoric_price(purchase_data.purchase_date) if bot else 0.00
             st.number_input("Quantità:", value=quantity, key=BOTCalculatorPage.QUANTITY_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.QUANTITY_KEY))
             st.number_input("Durata totale (giorni):", value=duration, key=BOTCalculatorPage.DURATION_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.DURATION_KEY))
             st.number_input("Durata residua (giorni):", value=remaining_duration, key=BOTCalculatorPage.REMAINING_DURATION_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.REMAINING_DURATION_KEY))
