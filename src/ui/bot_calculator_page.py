@@ -62,8 +62,7 @@ class BOTCalculatorPage(Page):
         purchase_data = st.session_state.purchase_data
         commissions_policy = st.session_state.commissions_policy
 
-        last_price = bot.last_quote.last_price #if bot and bot.last_quote else 0.0
-        duration = bot.get_duration() if bot else 0
+        last_price = bot.last_quote.last_price if bot and bot.last_quote else 0.000
 
         # Anagrafica Titolo
         with st.container(border=True):
@@ -94,10 +93,13 @@ class BOTCalculatorPage(Page):
             commissions_policy.min_value = st.number_input("Min. Commissioni (EUR):", value=commissions_policy.min_value, key=BOTCalculatorPage.MIN_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.MIN_COMMISSIONS_KEY))
             if commissions_policy.max_value == float('inf'):
                 temp_max_commissions = st.number_input("Max. Commissioni (EUR)", value=None, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
-                if temp_max_commissions != None:
-                    commissions_policy.max_value = temp_max_commissions
             else:
-                commissions_policy.max_value = st.number_input("Max. Commissioni (EUR)", value=commissions_policy.max_value, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
+                temp_max_commissions = st.number_input("Max. Commissioni (EUR)", value=commissions_policy.max_value, key=BOTCalculatorPage.MAX_COMMISSIONS_KEY, disabled=False, format="%.2f", step=0.001, help=Helper.get_help(BOTCalculatorPage.MAX_COMMISSIONS_KEY))
+            if temp_max_commissions != None:
+                commissions_policy.max_value = temp_max_commissions
+            else:
+                commissions_policy.max_value = float('inf')
+
             commissions_policy.fixed = st.number_input("Costi Fissi (EUR)", value=commissions_policy.fixed, key=BOTCalculatorPage.FIXED_COSTS_KEY, disabled=False, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.FIXED_COSTS_KEY))
             purchase_data.lot = st.number_input("Lotto (Importo Nominale in EUR)", value=purchase_data.lot, key=BOTCalculatorPage.LOT_KEY, min_value=0, disabled=False, format="%d", step=1000, help=Helper.get_help(BOTCalculatorPage.LOT_KEY))
         bot_calculator = BOTCalculatorService()
@@ -108,6 +110,7 @@ class BOTCalculatorPage(Page):
         with st.container(border=True):
             st.markdown("<h2 style='font-size: 20px;'>Informazioni BOT</h2>", unsafe_allow_html=True)
             quantity = purchase_data.lot//100
+            duration = bot.get_duration() if bot else 0
             remaining_duration = bot.get_remaining_duration(purchase_data.purchase_date) if bot else 0
             passed_duration = bot.get_passed_duration(purchase_data.purchase_date) if bot else 0
             theoric_price = bot.get_theoric_price(purchase_data.purchase_date) if bot else 0.00
@@ -146,7 +149,7 @@ class BOTCalculatorPage(Page):
         # Rendimenti
         with st.container(border=True):
             st.markdown("<h2 style='font-size: 20px;'>Rendimenti</h2>", unsafe_allow_html=True)
-            gross_yield = (gross_total_gain * 100 / purchase_costs.clean_price) * (duration/remaining_duration) if purchase_costs.clean_price != 0 and remaining_duration != 0 else 0.00
-            net_yield = (net_total_gain * 100 / purchase_costs.total_cost) * (duration/remaining_duration) if purchase_costs.total_cost != 0 and remaining_duration != 0 else 0.00
+            gross_yield = (gross_total_gain * 100 / purchase_costs.clean_price) * (365/remaining_duration) if purchase_costs.clean_price != 0 and remaining_duration != 0 else 0.00
+            net_yield = (net_total_gain * 100 / purchase_costs.total_cost) * (365/remaining_duration) if purchase_costs.total_cost != 0 and remaining_duration != 0 else 0.00
             st.number_input("Rendimento Lordo %:", value=gross_yield, key=BOTCalculatorPage.GROSS_YIELD_KEY, disabled=True, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.GROSS_YIELD_KEY))
             st.number_input("Rendimento Netto al Rimborso %:", value=net_yield, key=BOTCalculatorPage.NET_YIELD_KEY, disabled=True, format="%.2f", step=0.01, help=Helper.get_help(BOTCalculatorPage.NET_YIELD_KEY))

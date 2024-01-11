@@ -37,7 +37,10 @@ class BOTCalculatorService:
         # The number of BOT bought is LOT/100
         quantity = purchase_data.lot/100
         clean_price = purchase_data.purchase_price * quantity
-        commission = bank_fee_policy.calculate(clean_price)
+        if purchase_data.buy_auction:
+            commission = bank_fee_policy.calculate(purchase_data.lot)
+        else:
+            commission = bank_fee_policy.calculate(clean_price)
         tax = TaxFeePolicy().calculate(bot, purchase_data)
         total_cost = clean_price + commission + tax
         purchase_costs = PurchaseCosts(clean_price, commission, tax, total_cost)

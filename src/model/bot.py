@@ -33,4 +33,4 @@ class BOT:
         return (date - self.issuance_date).days
 
     def get_theoric_price(self, date=datetime.now().date()):
-        return self.issuance_price + (100 - self.issuance_price)*(self.get_passed_duration(date)/self.get_duration())
+        return self.issuance_price + (100 - self.issuance_price)*(self.get_passed_duration(date)/self.get_duration()) if self.get_duration() != 0 else 0.000
