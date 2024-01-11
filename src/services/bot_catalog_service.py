@@ -69,7 +69,7 @@ class BOTCatalogService:
                                     bot_detail_soup = BeautifulSoup(bot_detail_response.text, 'html.parser')
 
                                     # Estrai prezzo di emissione, data di emissione e scadenza dalla pagina dettagliata
-                                    issuance_price = float(bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label37'}).text.strip())
+                                    issuance_price = float(bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label37'}).text.strip().replace(",","."))
 
                                     issuance_date_str = bot_detail_soup.find('span', {'id': 'ctl00_phContents_ctlInfoTitolo_Label36'}).text.strip()
                                     issuance_date = datetime.strptime(issuance_date_str, '%d/%m/%Y').date()

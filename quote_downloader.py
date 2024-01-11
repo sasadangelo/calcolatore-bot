@@ -69,7 +69,7 @@ class QuoteDownloader:
             # Scrivi i dati delle quotazioni aggiornate nel file CSV
             for bot in self.bot_catalog.get_bot_list():
                 if bot.last_quote:
-                    writer.writerow([bot.name, bot.last_quote.datetime.strftime("%d/%m/%Y %H:%M:%S"), bot.last_quote.last_price, bot.last_quote.variation, bot.last_quote.opening, bot.last_quote.min, bot.last_quote.max])
+                    writer.writerow([bot.name, bot.last_quote.quote_datetime.strftime("%d/%m/%Y %H:%M:%S"), bot.last_quote.last_price, bot.last_quote.variation, bot.last_quote.opening, bot.last_quote.min, bot.last_quote.max])
 
 if __name__ == "__main__":
     # Carica la lista di BOT dal file CSV
