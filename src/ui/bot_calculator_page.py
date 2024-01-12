@@ -118,7 +118,7 @@ class BOTCalculatorPage(Page):
             st.number_input("Durata totale (giorni):", value=duration, key=BOTCalculatorPage.DURATION_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.DURATION_KEY))
             st.number_input("Durata residua (giorni):", value=remaining_duration, key=BOTCalculatorPage.REMAINING_DURATION_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.REMAINING_DURATION_KEY))
             st.number_input("Durata trascorsa (giorni):", value=passed_duration, key=BOTCalculatorPage.ELAPSED_DURATION_KEY, disabled=True, format="%d", step=1, help=Helper.get_help(BOTCalculatorPage.ELAPSED_DURATION_KEY))
-            theoric_price = st.number_input("Prezzo Teorico (EUR):", value=theoric_price, key=BOTCalculatorPage.THEORIC_PRICE_KEY, disabled=True, format="%.3f", step=0.001, help=Helper.get_help(BOTCalculatorPage.THEORIC_PRICE_KEY))
+            theoric_price = st.number_input("Prezzo Teorico (EUR):", value=theoric_price, key=BOTCalculatorPage.THEORIC_PRICE_KEY, disabled=True, format="%.5f", step=0.001, help=Helper.get_help(BOTCalculatorPage.THEORIC_PRICE_KEY))
 
         # Importi Acquisto (Costi)
         with st.container(border=True):
