@@ -20,14 +20,15 @@ class BOTCatalogPage(Page):
         if price_type == "Emissione":
             price = bot.issuance_price
             date = bot.issuance_date
+            remaining_duration = bot.get_duration()
         else:
             # Se l'utente ha scelto "Ultimo" come Tipo Prezzo.
             price = bot.last_quote.last_price if bot.last_quote else 0.000
             date = bot.last_quote.quote_datetime.date() if bot.last_quote else datetime.now().date()
+            remaining_duration = bot.get_remaining_duration(date)
 
-        duration = (bot.maturity_date - date).days
         gain = 100 - price
-        yield_percent = (gain * 100) / price * (365 / duration) if duration != 0 else 0
+        yield_percent = (gain * 100) / price * (365 / remaining_duration) if remaining_duration != 0 else 0
         return yield_percent, date, price
 
     def __filter_bots_by_type(self, bot_list, selected_type):
